@@ -1,0 +1,110 @@
+CREATE DATABASE userdb;
+
+USE userdb;
+
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    password VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    country VARCHAR(50) NOT NULL
+);
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Registration</title>
+</head>
+<body>
+    <h2>User Registration Form</h2>
+    <form action="register" method="post">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br><br>
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br><br>
+        
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>
+        
+        <label for="country">Country:</label>
+        <input type="text" id="country" name="country" required><br><br>
+        
+        <input type="submit" value="Register">
+    </form>
+</body>
+</html>
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/register")  
+public class RegisterServlet extends HttpServlet {
+
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        
+    
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        String email = request.getParameter("email");
+        String country = request.getParameter("country");
+
+        // Database connection parameters
+        String jdbcURL = "jdbc:mysql://localhost:3306/userdb";  
+        String dbUser = "root";  
+        String dbPassword = "password";  
+
+        try (PrintWriter out = response.getWriter()) {
+            // Establishing a connection to the database
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection conn = DriverManager.getConnection(jdbcURL, dbUser, dbPassword);
+
+            String sql = "INSERT INTO users (username, password, email, country) VALUES (?, ?, ?, ?)";
+
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setString(1, username);
+            statement.setString(2, password);
+            statement.setString(3, email);
+            statement.setString(4, country);
+
+            int rowsInserted = statement.executeUpdate();
+            if (rowsInserted > 0) {
+                out.println("<h2>Registration successful! Welcome, " + username + "</h2>");
+            } else {
+                out.println("<h2>Registration failed. Please try again.</h2>");
+            }
+
+            conn.close();
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    @Override
+    public String getServletInfo() {
+        return "User Registration Servlet";
+    }
+}
