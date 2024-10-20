@@ -1,1 +1,71 @@
+<form action="cal" method="post">
+    <input type="text" name="num1" placeholder="Enter first number">
+    <input type="text" name="num2" placeholder="Enter second number">
+    <select name="op">
+        <option value="add">Add</option>
+        <option value="sub">Subtract</option>
+        <option value="div">Divide</option>
+        <option value="mul">Multiply</option>
+    </select>
+    <input type="submit" value="Calculate">
+</form>
+
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+public class cal extends HttpServlet {
+    
+    // Process the request
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            // Get parameters from the request
+            int a = Integer.parseInt(request.getParameter("num1")); // Corrected "numl" to "num1"
+            int b = Integer.parseInt(request.getParameter("num2"));
+            String operation = request.getParameter("op");
+
+            // Perform operations based on the selected operation
+            if (operation.equals("add")) {
+                out.print("Result: " + (a + b));
+            } else if (operation.equals("sub")) {
+                out.print("Result: " + (a - b));
+            } else if (operation.equals("div")) {
+                if (b != 0) {
+                    out.print("Result: " + (a / b));
+                } else {
+                    out.print("Cannot divide by zero.");
+                }
+            } else if (operation.equals("mul")) {
+                out.print("Result: " + (a * b));
+            } else {
+                out.print("Invalid operation.");
+            }
+        }
+    }
+
+    // Override doGet to call processRequest
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    // Override doPost to call processRequest
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    @Override
+    public String getServletInfo() {
+        return "Simple Calculator Servlet";
+    }
+}
 
